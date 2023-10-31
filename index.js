@@ -119,23 +119,31 @@ export const mdxAnnotations = {
       estreeVisit(tree, (node) => {
         if (node.type !== 'CallExpression') return
         if (
-          node.callee.name !== '_jsxs' &&
-          node.callee.name !== '_jsx' &&
-          node.callee.name !== '_jsxDEV'
+          node?.callee?.name !== '_jsxs' &&
+          node?.callee?.name !== '_jsx' &&
+          node?.callee?.name !== '_jsxDEV'
         )
           return
 
         let propsNode = node.arguments[1]
         if (propsNode?.type !== 'ObjectExpression') return
 
-        let propNode = propsNode.properties.find((property) => property.key.name === PROP_NAME)
+        let propNode = propsNode.properties.find(
+          (property) => property.key?.name === PROP_NAME
+        )
 
         if (propNode) {
-          let annotationNode = acorn.parse('(' + propNode.value.value.trim() + ')', {
-            ecmaVersion: 'latest',
-          }).body[0].expression
+          let annotationNode = acorn.parse(
+            '(' + propNode.value.value.trim() + ')',
+            {
+              ecmaVersion: 'latest',
+            }
+          ).body[0].expression
           propsNode.properties.splice(propsNode.properties.indexOf(propNode), 1)
-          propsNode.properties.push({ type: 'SpreadElement', argument: annotationNode })
+          propsNode.properties.push({
+            type: 'SpreadElement',
+            argument: annotationNode,
+          })
         }
       })
     }
